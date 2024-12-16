@@ -3,73 +3,934 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Firearms Store</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Elite Firearms Emporium</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a2639;
+            --secondary-color: #c41e3a;
+            --accent-color: #d4af37;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --success-color: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Cart Icon Styles */
+        .cart-icon {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .cart-icon:hover {
+            transform: translateY(-2px);
+            background: #a01830;
+        }
+
+        .cart-count {
+            background: white;
+            color: var(--secondary-color);
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Cart Modal Styles */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 20px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .close-cart {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .close-cart:hover {
+            color: var(--secondary-color);
+        }
+
+        .cart-items {
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+        }
+
+        .cart-item-price {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .remove-item {
+            color: #dc3545;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .remove-item:hover {
+            color: #bd2130;
+        }
+
+        .cart-total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--light-gray);
+            text-align: right;
+        }
+
+        .checkout-btn {
+            background: var(--secondary-color);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            background: #a01830;
+            transform: translateY(-2px);
+        }
+
+        /* Checkout Modal Styles */
+        .checkout-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            z-index: 1002;
+        }
+
+        .checkout-form input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        .checkout-form input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+
+        /* Thank You Modal Styles */
+        .thank-you-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            z-index: 1003;
+        }
+
+        .thank-you-modal i {
+            font-size: 4rem;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+
+        /* Overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        /* Additional Base Styles */
+        body {
+            margin: 0;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-gray);
+        }
+
+        /* Header & Navigation */
+        header {
+            background: var(--primary-color);
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 998;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 70px;
+            height: 400px;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('HERO-IMAGE-URL-HERE');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+
+        .hero h2 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* Product Grid */
+        .product-section {
+            padding: 4rem 2rem;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--secondary-color);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 500;
+            z-index: 1;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            padding: 2rem;
+        }
+
+        .product-info h3 {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .rating {
+            color: var(--accent-color);
+            margin: 0.5rem 0;
+        }
+
+        .price {
+            color: var(--secondary-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .add-to-cart-btn {
+            background: var(--secondary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #a01830;
+            transform: translateY(-2px);
+        }
+
+    </style>
 </head>
 <body>
+    <!-- Cart Icon -->
+    <div class="cart-icon" onclick="toggleCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count">0</span>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal">
+        <div class="cart-header">
+            <h2>Your Cart</h2>
+            <i class="fas fa-times close-cart" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items">
+            <!-- Cart items will be dynamically added here -->
+        </div>
+        <div class="cart-total">
+            <h3>Total: $<span id="cart-total">0.00</span></h3>
+            <button class="checkout-btn" onclick="showCheckout()">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="checkout-modal">
+        <h2>Checkout</h2>
+        <form class="checkout-form" onsubmit="processPayment(event)">
+            <input type="text" placeholder="Cardholder Name" required>
+            <input type="text" placeholder="Card Number" required pattern="[0-9]{16}" maxlength="16">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" placeholder="MM/YY" required pattern="[0-9]{2}/[0-9]{2}" maxlength="5">
+                <input type="text" placeholder="CVV" required pattern="[0-9]{3}" maxlength="3">
+            </div>
+            <input type="text" placeholder="Billing Address" required>
+            <button type="submit" class="checkout-btn">Pay Now</button>
+        </form>
+    </div>
+
+    <!-- Thank You Modal -->
+    <div class="thank-you-modal">
+        <i class="fas fa-check-circle"></i>
+        <h2>Thank You for Your Purchase!</h2>
+        <p>Your order has been processed successfully.</p>
+        <button class="checkout-btn" onclick="closeThankYou()">Continue Shopping</button>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay"></div>
+
+    <!-- Main Content -->
     <header>
         <nav>
             <div class="logo">
-                <h1>Professional Firearms</h1>
+                <h1>Elite Firearms</h1>
             </div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#inventory">Inventory</a></li>
                 <li><a href="#services">Services</a></li>
-                <li><a href="#about">About Us</a></li>
+                <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
     </header>
 
-    <main>
-        <section id="home" class="hero">
-            <h2>Welcome to Professional Firearms</h2>
-            <p>Licensed Firearms Dealer - FFL Certified</p>
-            <div class="legal-notice">
-                <p>Must be 21 or older. Valid ID required. All federal and state laws apply.</p>
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h2>Elite Firearms Emporium</h2>
+            <p>Premium Firearms & Professional Service</p>
+        </div>
+    </section>
+
+    <section class="product-section" id="inventory">
+        <h2 class="section-title">Featured Products</h2>
+        <div class="product-grid">
+            <!-- Product 1 -->
+            <div class="product-card">
+                <div class="product-badge">Best Seller</div>
+                <img src="https://www.machinegun.fr/products_img/17340/C_1.jpg" alt="Glock 19 w/ illegal silencer" class="product-image">
+                <div class="product-info">
+                    <h3>Glock 19 Gen5</h3>
+                    <p>9mm Semi-Automatic Pistol (includes illegal silencer)</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="price">$549.99</p>
+                    <button class="add-to-cart-btn" onclick="addToCart('Glock 19 w/ illegal silencer Gen5', 549.99)">
+                        <i class="fas fa-cart-plus"></i>
+                        Add to Cart
+                    </button>
+                </div>
             </div>
-        </section>
 
-        <section id="inventory" class="products">
-            <h2>Featured Products</h2>
-            <div class="product-grid">
-                <!-- Product items will go here -->
+            <!-- Product 2 -->
+            <div class="product-card">
+                <div class="product-badge">Premium</div>
+                <img src="https://static.wikia.nocookie.net/deadliestwarrior/images/9/92/%28Sawed_Off%29.jpg/revision/latest?cb=20100618215651" alt="Sawed Off Shotgun" class="product-image">
+                <div class="product-info">
+                    <h3>Beretta Xtrema 2</h3>
+                    <p>Shotgun (sawed off)</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="price">$1,899.99</p>
+                    <button class="add-to-cart-btn" onclick="addToCart('Sawed Off Shotgun', 1899.99)">
+                        <i class="fas fa-cart-plus"></i>
+                        Add to Cart
+                    </button>
+                </div>
             </div>
-        </section>
 
-        <section id="services">
-            <h2>Our Services</h2>
-            <ul>
-                <li>Firearm Sales</li>
-                <li>Safety Training</li>
-                <li>License Processing</li>
-                <li>Background Checks</li>
-                <li>Maintenance Services</li>
-            </ul>
-        </section>
+            <!-- Continue with more products... -->
 
-        <section id="about">
-            <h2>About Us</h2>
-            <p>Licensed and professional firearms dealer with X years of experience.</p>
-        </section>
+        </div>
+    </section>
 
-        <section id="contact">
-            <h2>Contact Us</h2>
-            <form>
-                <input type="text" placeholder="Name" required>
-                <input type="email" placeholder="Email" required>
-                <textarea placeholder="Message" required></textarea>
-                <button type="submit">Send Message</button>
-            </form>
-        </section>
-    </main>
+    <script>
+        let cart = [];
+        let cartTotal = 0;
 
-    <footer>
-        <p>&copy; 2023 Professional Firearms. All rights reserved.</p>
-        <p>FFL Licensed Dealer | Privacy Policy | Terms of Service</p>
-    </footer>
+        function toggleCart() {
+            document.querySelector('.cart-modal').style.display = 
+                document.querySelector('.cart-modal').style.display === 'block' ? 'none' : 'block';
+            document.querySelector('.overlay').style.display = 
+                document.querySelector('.overlay').style.display === 'block' ? 'none' : 'block';
+        }
 
-    <script src="script.js"></script>
-</body>
-</html>
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            cartTotal += price;
+            updateCartDisplay();
+            
+            // Animation effect
+            const cartIcon = document.querySelector('.cart-icon');
+            cartIcon.style.transform = 'scale(1.2)';
+            setTimeout(() => cartIcon.style.transform = 'scale(1)', 200);
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.querySelector('.cart-items');
+            const cartCount = document.querySelector('.cart-count');
+            cartCount.textContent = cart.length;
+            
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <img src="PRODUCT-IMAGE-URL-HERE" alt="${item.name}">
+                    <div class="cart-item-details">
+                        <h3>${item.name}</h3>
+                        <p class="cart-item-price">$${item.price}</p>
+                    </div>
+                    <i class="fas fa-trash remove-item" onclick="removeFromCart(${cart.indexOf(item)})"></i>
+                </div>
+            `).join('');
+
+            document.getElementById('cart-total').textContent = cartTotal.toFixed(2);
+        }
+        function removeFromCart(index) {
+            cartTotal -= cart[index].price;
+            cart.splice(index, 1);
+            updateCartDisplay();
+        }
+
+        function showCheckout() {
+            document.querySelector('.cart-modal').style.display = 'none';
+            document.querySelector('.checkout-modal').style.display = 'block';
+        }
+
+        function processPayment(event) {
+            event.preventDefault();
+            document.querySelector('.checkout-modal').style.display = 'none';
+            document.querySelector('.thank-you-modal').style.display = 'block';
+            
+            // Reset cart after purchase
+            cart = [];
+            cartTotal = 0;
+            updateCartDisplay();
+        }
+
+        function closeThankYou() {
+            document.querySelector('.thank-you-modal').style.display = 'none';
+            document.querySelector('.overlay').style.display = 'none';
+        }
+    </script>
+
+    <!-- Add more products to the product grid -->
+    <!-- Product 3 -->
+    <div class="product-card">
+        <div class="product-badge">Tactical</div>
+        <img src="https://modernfirearms.net/userfiles/images/shotgun/sh07/saiga_12k_tromix.jpg" alt="Benelli M4" class="product-image">
+        <div class="product-info">
+            <h3>Benelli M4</h3>
+            <p>Saiga 12k 12 Gauge Full-Auto Shotgun</p>
+            <div class="rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+            </div>
+            <p class="price">$1,999.99</p>
+            <button class="add-to-cart-btn" onclick="addToCart('Benelli M4', 1999.99)">
+                <i class="fas fa-cart-plus"></i>
+                Add to Cart
+            </button>
+        </div>
+    </div>
+
+    <!-- Product 4 -->
+    <div class="product-card">
+        <div class="product-badge">Classic</div>
+        <img src="https://cdn.britannica.com/95/176195-050-D0FA0BC1/Smith-Wesson-revolver.jpg" alt="S&W 686" class="product-image">
+        <div class="product-info">
+            <h3>Smith & Wesson 686</h3>
+            <p>.357 Magnum Revolver</p>
+            <div class="rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+            </div>
+            <p class="price">$849.99</p>
+            <button class="add-to-cart-btn" onclick="addToCart('Smith & Wesson 686', 849.99)">
+                <i class="fas fa-cart-plus"></i>
+                Add to Cart
+            </button>
+        </div>
+    </div>
+
+    <!-- Product 5 -->
+    <div class="product-card">
+        <div class="product-badge">Popular</div>
+        <img src="https://www.sigsauer.com/media/catalog/product/cache/98cff4b26e9262b232060edf742d323e/p/3/p365-9-bss-left_1_1.jpg" alt="Sig P365" class="product-image">
+        <div class="product-info">
+            <h3>Sig Sauer P365</h3>
+            <p>9mm Compact Pistol</p>
+            <div class="rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+            </div>
+            <p class="price">$599.99</p>
+            <button class="add-to-cart-btn" onclick="addToCart('Sig Sauer P365', 599.99)">
+                <i class="fas fa-cart-plus"></i>
+                Add to Cart
+            </button>
+        </div>
+    </div>
+
+    <!-- Product 6 -->
+    <div class="product-card">
+        <div class="product-badge">New</div>
+        <img src="https://t3.ftcdn.net/jpg/02/72/87/66/360_F_272876683_7I3RGRQ9DNjmwZEHEFH1iHn1wunvdoha.jpg" alt="Ruger 10/22" class="product-image">
+        <div class="product-info">
+            <h3>Ruger 10/22</h3>
+            <p>.22 LR Semi-Auto Rifle</p>
+            <div class="rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+            </div>
+            <p class="price">$309.99</p>
+            <button class="add-to-cart-btn" onclick="addToCart('Ruger 10/22', 309.99)">
+                <i class="fas fa-cart-plus"></i>
+                Add to Cart
+            </button>
+        </div>
+    </div>
+
+    <!-- Product 7 -->
+    <div class="product-card">
+        <div class="product-badge">Premium</div>
+        <img src="https://hk-usa.com/wp-content/uploads/VP9OR-L-Web.jpg" alt="HK VP9" class="product-image">
+        <div class="product-info">
+            <h3>HK VP9</h3>
+            <p>9mm Striker-Fired Pistol</p>
+            <div class="rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+            </div>
+            <p class="price">$749.99</p>
+            <button class="add-to-cart-btn" onclick="addToCart('HK VP9', 749.99)">
+                <i class="fas fa-cart-plus"></i>
+                Add to Cart
+            </button>
+        </div>
+    </div>
+
+    <!-- Product 8 -->
+    <div class="product-card">
+        <div class="product-badge">Tactical</div>
+        <img src="https://www.mossberg.com/media/catalog/product/cache/e481e64536a684f69707b47f11cbf51f/5/6/56420_0xrjkp5oihkwtgy0.jpg" alt="Mossberg 500" class="product-image">
+        <div class="product-info">
+            <h3>Mossberg 500</h3>
+            <p>12 Gauge Tactical Shotgun</p>
+            <div class="rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+            </div>
+            <p class="price">$449.99</p>
+            <button class="add-to-cart-btn" onclick="addToCart('Mossberg 500', 449.99)">
+                <i class="fas fa-cart-plus"></i>
+                Add to Cart
+            </button>
+        </div>
+    </div    <!-- Services Section -->
+    <section id="services" class="services-section">
+        <h2 class="section-title">Our Services</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Firearms Training</h3>
+                <p>Professional instruction for all skill levels. State-certified instructors and comprehensive courses.</p>
+                <ul class="service-features">
+                    <li>Basic Firearm Safety</li>
+                    <li>Advanced Tactical Training</li>
+                    <li>CCW Certification</li>
+                    <li>Private Lessons Available</li>
+                </ul>
+                <a href="#contact" class="service-btn">Learn More</a>
+            </div>
+
+            <div class="service-card">
+                <i class="fas fa-exchange-alt"></i>
+                <h3>FFL Transfers</h3>
+                <p>Quick and efficient firearm transfer services with competitive fees.</p>
+                <ul class="service-features">
+                    <li>$25 Transfer Fee</li>
+                    <li>Fast Processing</li>
+                    <li>Secure Handling</li>
+                    <li>Expert Guidance</li>
+                </ul>
+                <a href="#contact" class="service-btn">Learn More</a>
+            </div>
+
+            <div class="service-card">
+                <i class="fas fa-tools"></i>
+                <h3>Gunsmithing</h3>
+                <p>Expert maintenance, repairs, and customization services.</p>
+                <ul class="service-features">
+                    <li>Custom Modifications</li>
+                    <li>Repairs & Maintenance</li>
+                    <li>Performance Upgrades</li>
+                    <li>Cleaning Services</li>
+                </ul>
+                <a href="#contact" class="service-btn">Learn More</a>
+            </div>
+
+            <div class="service-card">
+                <i class="fas fa-clipboard-check"></i>
+                <h3>Range Memberships</h3>
+                <p>Access to our state-of-the-art shooting range facilities.</p>
+                <ul class="service-features">
+                    <li>Climate Controlled</li>
+                    <li>Multiple Lanes</li>
+                    <li>Member Benefits</li>
+                    <li>Safety Equipment Provided</li>
+                </ul>
+                <a href="#contact" class="service-btn">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="about-container">
+            <div class="about-content">
+                <h2 class="section-title">About Elite Firearms</h2>
+                <p class="about-text">Since 1995, Elite Firearms has been the premier destination for firearms enthusiasts in the region. Our commitment to safety, expertise, and customer service sets us apart.</p>
+                
+                <div class="about-features">
+                    <div class="feature">
+                        <i class="fas fa-medal"></i>
+                        <h4>Licensed Experts</h4>
+                        <p>Fully certified staff</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-history"></i>
+                        <h4>25+ Years</h4>
+                        <p>Industry experience</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-users"></i>
+                        <h4>10,000+</h4>
+                        <p>Satisfied customers</p>
+                    </div>
+                </div>
+
+                <div class="certifications">
+                    <h3>Our Certifications</h3>
+                    <div class="cert-badges">
+                        <span class="cert-badge">FFL Licensed</span>
+                        <span class="cert-badge">NRA Certified</span>
+                        <span class="cert-badge">State Approved</span>
+                    </div>
+                </div>
+            </div>
+            <div class="about-image">
+                <img src="STORE-IMAGE-URL-HERE" alt="Our Store">
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <h2 class="section-title">Contact Us</h2>
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h4>Location</h4>
+                    <p>123 Firearms Avenue<br>Guntown, ST 12345</p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <h4>Phone</h4>
+                    <p>(555) 123-4567</p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <h4>Hours</h4>
+                    <p>Mon-Sat: 9AM - 7PM<br>Sun: 10AM - 5PM</p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <h4>Email</h4>
+                    <p>info@elitefirearms.com</p>
+                </div>
+            </div>
+
+            <div class="contact-form">
+                <form onsubmit="submitContactForm(event)">
+                    <div class="form-group">
+                        <input type="text" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <select required>
+                            <option value="">Select Inquiry Type</option>
+                            <option value="sales">Sales Inquiry</option>
+                            <option value="training">Training Information</option>
+                            <option value="ffl">FFL Transfer</option>
+                            <option value="gunsmith">Gunsmithing Services</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <textarea placeholder="Your Message" required rows="5"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Elite Firearms</h3>
+                <p>Your trusted source for firearms, training, and expertise.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#inventory">Products</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Elite Firearms. All rights reserved.</p>
+            <p>FFL Licensed Dealer |
+
+>
+    
